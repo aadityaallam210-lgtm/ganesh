@@ -1,0 +1,345 @@
+<?php
+session_start();
+include("config.php");
+
+// Check if user is logged in
+if(!isset($_SESSION['login_user']))
+{
+    header("Location: index.php");
+    exit();
+}
+
+$user = $_SESSION['login_user'];
+$success_message = "";
+$error_message = "";
+
+// Handle form submission
+if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+    $party_name = $_POST['party_name'];
+    $contact_person = $_POST['contact_person'];
+    $phone = $_POST['phone'];
+    $email = $_POST['email'];
+    $address = $_POST['address'];
+    
+    $query = "INSERT INTO parties (party_name, contact_person, phone, email, address) VALUES ('$party_name', '$contact_person', '$phone', '$email', '$address')";
+    
+    if(mysql_query($query))
+    {
+        $success_message = "Party added successfully!";
+    }
+    else
+    {
+        $error_message = "Error adding party. Please try again.";
+    }
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Party</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255,165,0,0.1) 2px, transparent 2px),
+                radial-gradient(circle, rgba(255,215,0,0.1) 2px, transparent 2px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            animation: particleFloat 25s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes particleFloat {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-60px);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px 50px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 126, 95, 0.4);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 126, 95, 0.6);
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 0 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 50px 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #ff7e5f, #feb47b, #ff7e5f);
+            border-radius: 25px;
+            z-index: -1;
+            opacity: 0;
+            filter: blur(15px);
+            transition: opacity 0.5s;
+            animation: borderPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .form-container h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: white;
+        }
+
+        .form-group textarea {
+            border-radius: 20px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff7e5f;
+            box-shadow: 0 0 0 4px rgba(255, 126, 95, 0.1),
+                        0 5px 20px rgba(255, 126, 95, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 35px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 16px 45px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 126, 95, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 126, 95, 0.6);
+        }
+
+        button[type="reset"] {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        button[type="reset"]:hover {
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.6);
+        }
+
+        .message {
+            padding: 15px 25px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 40px 30px;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Add New Party</h1>
+            <a href="parties.php" class="back-btn">← Back</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Party Information</h2>
+
+            <?php if($success_message): ?>
+                <div class="message success"><?php echo $success_message; ?></div>
+            <?php endif; ?>
+
+            <?php if($error_message): ?>
+                <div class="message error"><?php echo $error_message; ?></div>
+            <?php endif; ?>
+
+            <form action="" method="POST">
+                <div class="form-group">
+                    <label for="party_name">Party Name *</label>
+                    <input type="text" id="party_name" name="party_name" placeholder="Enter party name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_person">Contact Person *</label>
+                    <input type="text" id="contact_person" name="contact_person" placeholder="Enter contact person name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter email address">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" placeholder="Enter full address"></textarea>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit">Add Party</button>
+                    <button type="reset">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
